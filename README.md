@@ -1,2 +1,2 @@
-# deptypes
-A type system resembles *Edinburgh Logical Framework* but added some extensions
+# λLF
+An implementation of *Edinburgh Logical Framework*, a first-order dependently-typed lambda calculus, with some simple syntactical extensions
