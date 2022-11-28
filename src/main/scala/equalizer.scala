@@ -70,3 +70,8 @@ class BetaEtaEquality extends Equalizer:
           termEquiv(context.addTermBinding(unifiedBinder, lhsBinderType.get), macros, unifiedLhsBody, unifiedRhsBody)
       case (BinOp(binOpLhs), BinOp(binOpRhs)) => termEquiv(context, macros, binOpLhs.lhs, binOpRhs.lhs) && termEquiv(context, macros, binOpLhs.rhs, binOpRhs.rhs)
       case (SyntaxNode.Macro(_, _), SyntaxNode.Macro(_, _)) => true
+      case (SyntaxNode.Abstraction(binder, _, body), node) =>
+        body match
+          case SyntaxNode.Application(f, SyntaxNode.Id(id)) if id == binder => termEquiv(context, macros, f, node)
+          case _ => false
+      case _ => false
