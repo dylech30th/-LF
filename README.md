@@ -1,2 +1,2 @@
 # λLF
-An implementation of *Edinburgh Logical Framework*, a dependently-typed lambda calculus, with some simple syntactical extensions
+An implementation of *Edinburgh Logical Framework*, a first-order dependently-typed lambda calculus, with some simple syntactical extensions
