@@ -1,5 +1,7 @@
 package ink.sora
 
+import ink.sora.SyntaxNode.Macro
+
 import scala.annotation.{tailrec, targetName, unused}
 import scala.reflect.ClassTag
 import scala.util.Try
@@ -9,7 +11,7 @@ extension [T](x: Try[T])
   def >>=[V](f: T => Try[V]): Try[V] = x.flatMap(f)
 
 extension [T](x: T)
-  def run(f: T => Unit): T =
+  def run(f: PartialFunction[T, Unit]): T =
     f(x)
     x
 
@@ -35,23 +37,23 @@ def error(message: => String): Exception =
 
 def substituteTerm(term: SyntaxNode, target: String, replacement: SyntaxNode): SyntaxNode =
   return term match
-    case lb@SyntaxNode.LetBinding(_, binder, _, binderExpr, body) =>
+    case lb@SyntaxNode.LetBinding(_, binder, binderType, binderExpr, body) =>
       if binder == target then term
       else body match
-        case None => lb.copy(binderExpr = substituteTerm(binderExpr, target, replacement))
+        case None => lb.copy(binderExpr = substituteTerm(binderExpr, target, replacement), binderType = binderType.map(substituteDepType(_, target, replacement)))
         case Some(b) =>
           if fv(replacement) contains binder then
             val newLet = alphaConv(term, replacement)
             substituteTerm(newLet, target, replacement)
           else
-            lb.copy(binderExpr = substituteTerm(binderExpr, target, replacement), body = Some(substituteTerm(b, target, replacement)))
+            lb.copy(binderExpr = substituteTerm(binderExpr, target, replacement), binderType = binderType.map(substituteDepType(_, target, replacement)), body = Some(substituteTerm(b, target, replacement)))
     case SyntaxNode.Application(f, a) => SyntaxNode.Application(substituteTerm(f, target, replacement), substituteTerm(a, target, replacement))
     case SyntaxNode.Abstraction(binder, binderType, body) =>
       if binder == target then term
       else if fv(replacement) contains binder then
         val newAbs = alphaConv(term, replacement)
         substituteTerm(newAbs, target, replacement)
-      else SyntaxNode.Abstraction(binder, binderType, substituteTerm(body, target, replacement))
+      else SyntaxNode.Abstraction(binder, binderType.map(substituteDepType(_, target, replacement)), substituteTerm(body, target, replacement))
     case SyntaxNode.Id(name) => if name == target then replacement else term
     case SyntaxNode.Number(_) | SyntaxNode.Bool(_) | SyntaxNode.Unit => term
     case SyntaxNode.Tuple(products) => SyntaxNode.Tuple(products.map(substituteTerm(_, target, replacement)))
@@ -66,6 +68,7 @@ def substituteTerm(term: SyntaxNode, target: String, replacement: SyntaxNode): S
       bo.rhs = substituteTerm(t.rhs, target, replacement)
     }
     case UnOp(t) => t.run(uo => uo.subject = substituteTerm(uo.subject, target, replacement))
+    case Macro(name, subject) => SyntaxNode.Macro(name, substituteTerm(subject,  target, replacement))
     case _ => throw new IllegalStateException("Unknown term")
 
 def substituteDepType(ty: TypeDecl, target: String, replacement: SyntaxNode): TypeDecl =
@@ -76,7 +79,7 @@ def substituteDepType(ty: TypeDecl, target: String, replacement: SyntaxNode): Ty
       else if fv(replacement) contains binder then
         val newType = alphaConv(ty, replacement)
         substituteDepType(newType, target, replacement)
-      else TypeDecl.PiType(binder, binderType, substituteDepType(body, target, replacement))
+      else TypeDecl.PiType(binder, substituteDepType(binderType, target, replacement), substituteDepType(body, target, replacement))
     case TypeDecl.SigmaType(binder, binderType, body) =>
       if binder == target then ty
       else if fv(replacement) contains binder then

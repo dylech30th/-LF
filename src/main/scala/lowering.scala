@@ -29,4 +29,4 @@ def lower(syntaxNode: SyntaxNode): SyntaxNode =
         SyntaxNode.LetBinding(false, binder, binderType, loweredBinderExpr, loweredBody)
     case SyntaxNode.Fixpoint(f) =>
       SyntaxNode.Fixpoint(lower(f))
-    case _ => throw IllegalStateException("Unexpected syntax node " + syntaxNode)
+    case _ => syntaxNode

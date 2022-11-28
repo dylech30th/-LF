@@ -20,7 +20,9 @@ class SymbolContext:
     addSymbol(SymbolBinding.TypeBinding(ty, kind))
 
   def addTermBinding(name: String, ty: TypeDecl): SymbolContext =
-    lookupTermBinding(name).fold(addSymbol(SymbolBinding.TermBinding(name, ty)))(_ => throw error(s"$name is already defined"))
+    if name != "_" then
+      lookupTermBinding(name).fold(addSymbol(SymbolBinding.TermBinding(name, ty)))(_ => throw error(s"$name is already defined"))
+    else this
 
   def addAssignBinding(name: String, value: SyntaxNode): SymbolContext =
     lookupAssignBinding(name).fold(addSymbol(SymbolBinding.AssignBinding(name, value)))(_ => throw error(s"$name is already defined"))

@@ -38,3 +38,13 @@ object BinOpRightNotSingleton:
     binOp.rhs match
       case NotSingletonNode(n) => Some(n)
       case _ => None
+
+object NotSingletonType:
+  def unapply(ty: TypeDecl): Option[TypeDecl] =
+    ty match
+      case TypeDecl.PiType(_, _, _) |
+           TypeDecl.SigmaType(_, _, _) |
+           TypeDecl.ProductType(_) |
+           TypeDecl.DependentOperator(_, _, _) |
+           TypeDecl.DependentInstantiation(_, _) => Some(ty)
+      case _ => None

@@ -52,6 +52,10 @@ enum TokenKind:
   case Rec
   case LeftBracket
   case RightBracket
+  case Define
+  case ColonColon
+  case DoubleArrow
+  case Sharp
 end TokenKind
 
 enum Token(val kind: TokenKind, val isExprStart: Boolean = false):
@@ -98,6 +102,10 @@ enum Token(val kind: TokenKind, val isExprStart: Boolean = false):
   case Rec extends Token(TokenKind.Rec)
   case LeftBracket extends Token(TokenKind.LeftBracket)
   case RightBracket extends Token(TokenKind.RightBracket)
+  case Define extends Token(TokenKind.Define)
+  case ColonColon extends Token(TokenKind.ColonColon)
+  case DoubleArrow extends Token(TokenKind.DoubleArrow)
+  case Sharp extends Token(TokenKind.Sharp)
 end Token
 
 object Lexer extends RegexParsers:
@@ -119,12 +127,12 @@ object Lexer extends RegexParsers:
   private def `then`: Parser[Token] = "then" ^^ (_ => Token.Then)
   private def `if`: Parser[Token] = "if" ^^ (_ => Token.If)
   private def dot: Parser[Token] = "." ^^ (_ => Token.Dot)
-  private def lambda: Parser[Token] = "fun" ^^ (_ => Token.Lambda)
+  private def lambda: Parser[Token] = "fun|λ".r ^^ (_ => Token.Lambda)
   private def equal: Parser[Token] = "=" ^^ (_ => Token.Equal)
   private def let: Parser[Token] = "let" ^^ (_ => Token.Let)
   private def semicolon: Parser[Token] = ";" ^^ (_ => Token.Semicolon)
-  private def pi: Parser[Token] = "pi" ^^ (_ => Token.Pi)
-  private def sigma: Parser[Token] = "sigma" ^^ (_ => Token.Sigma)
+  private def pi: Parser[Token] = "pi|Π".r ^^ (_ => Token.Pi)
+  private def sigma: Parser[Token] = "sigma|Σ".r ^^ (_ => Token.Sigma)
   private def end: Parser[Token] = "end" ^^ (_ => Token.End)
   private def in: Parser[Token] = "in" ^^ (_ => Token.In)
   private def unit: Parser[Token] = "unit" ^^ (_ => Token.Unit)
@@ -147,10 +155,17 @@ object Lexer extends RegexParsers:
   private def rec: Parser[Token] = "rec" ^^ (_ => Token.Rec)
   private def leftBracket: Parser[Token] = "[" ^^ (_ => Token.LeftBracket)
   private def rightBracket: Parser[Token] = "]" ^^ (_ => Token.RightBracket)
+  private def define: Parser[Token] = "define" ^^ (_ => Token.Define)
+  private def colonColon: Parser[Token] = "::" ^^ (_ => Token.ColonColon)
+  private def doubleArrow: Parser[Token] = "=>" ^^ (_ => Token.DoubleArrow)
+  private def sharp: Parser[Token] = "#" ^^ (_ => Token.Sharp)
 
   def tokens: Parser[List[Token]] =
     return phrase(rep1(
       lessThanEqual
+        | sharp
+        | doubleArrow
+        | define
         | greaterThanEqual
         | rightArrow
         | lessThan
@@ -168,6 +183,7 @@ object Lexer extends RegexParsers:
         | unit
         | bool
         | nat
+        | colonColon
         | colon
         | comma
         | leftParen
@@ -237,6 +253,9 @@ enum SyntaxNode:
   case If(cond: SyntaxNode, thenClause: SyntaxNode, elseClause: SyntaxNode)
   case LetBinding(isRec: Boolean, binder: String, binderType: Option[TypeDecl], binderExpr: SyntaxNode, body: Option[SyntaxNode])
   case Abstraction(binder: String, binderType: Option[TypeDecl], body: SyntaxNode)
+  case TypeDefine(binder: String, kind: Kind)
+  case TermDefine(binder: String, ty: TypeDecl)
+  case Macro(name: String, target: SyntaxNode)
 end SyntaxNode
 
 enum TypeDecl:
@@ -259,15 +278,48 @@ class Parser(private var tokens: List[Token]):
       return head
     else
       System.err.println(tokens)
-      throw IllegalStateException("Expected token of kind " + tokenKind + " but got " + tokens.head.kind)
+      throw IllegalStateException("Expecting token of kind " + tokenKind + " but got " + tokens.head.kind)
 
   def program(): List[SyntaxNode] =
     val es = ListBuffer.empty[SyntaxNode]
     while tokens.nonEmpty do
       es += (tokens.head.kind match
         case TokenKind.Type => typeAlias()
+        case TokenKind.Define => define()
         case _ => lower(expr()))
     return es.toList
+
+  private def define(): SyntaxNode =
+    matchToken(TokenKind.Define)
+    val binder = matchToken(TokenKind.Id).asInstanceOf[Token.Id].name
+    return tokens.head match
+      case Token.ColonColon =>
+        matchToken(TokenKind.ColonColon)
+        SyntaxNode.TypeDefine(binder, kind())
+      case Token.Colon =>
+        matchToken(TokenKind.Colon)
+        SyntaxNode.TermDefine(binder, typeDecl())
+      case _ => throw error(s"Expecting : or :: but ${tokens.head.kind} was found")
+
+  private def kind(): Kind =
+    tokens.head match
+      case Token.Pi =>
+        matchToken(TokenKind.Pi)
+        val binder = matchToken(TokenKind.Id).asInstanceOf[Token.Id].name
+        matchToken(TokenKind.Colon)
+        val binderType = typeDecl()
+        matchToken(TokenKind.Dot)
+        Kind.Pi(binder, binderType, kind())
+      case Token.Product =>
+        matchToken(TokenKind.Product)
+        Kind.Type
+      case _ =>
+        matchToken(TokenKind.LeftBracket)
+        val lhs = typeDecl()
+        matchToken(TokenKind.RightBracket)
+        matchToken(TokenKind.RightArrow)
+        Kind.Pi("_", lhs, kind())
+
 
   private def typeAlias(): SyntaxNode =
     matchToken(TokenKind.Type)
@@ -277,30 +329,22 @@ class Parser(private var tokens: List[Token]):
     matchToken(TokenKind.Semicolon)
     return SyntaxNode.TypeAlias(name, t)
 
-  private def expr(): SyntaxNode =
-    return tokens.head.kind match
-      case TokenKind.Lambda => abstraction()
-      case TokenKind.Let => letBinding()
-      case TokenKind.If => ifExpr()
-      case _ => application()
-
-  private def ifExpr(): SyntaxNode =
-    matchToken(TokenKind.If)
-    val condition = expr()
-    matchToken(TokenKind.Then)
-    val thenClause = expr()
-    matchToken(TokenKind.Else)
-    val elseClause = expr()
-    return SyntaxNode.If(condition, thenClause, elseClause)
+  private def expr(): SyntaxNode = application()
 
   private def application(): SyntaxNode =
-    val first = sequence()
+    val first = letBinding()
+    return applicationRest(first)
+
+  private def applicationRest(first: SyntaxNode): SyntaxNode =
     return tokens.headOption match
       case Some(token) if token.isExprStart =>
-        SyntaxNode.Application(first, application())
+        val second = letBinding()
+        return applicationRest(SyntaxNode.Application(first, second))
       case _ => first
 
   private def letBinding(): SyntaxNode =
+    if tokens.head.kind != TokenKind.Let then
+      return ifExpr()
     matchToken(TokenKind.Let)
     val isRec = tokens.head.kind == TokenKind.Rec
     if isRec then matchToken(TokenKind.Rec)
@@ -321,8 +365,20 @@ class Parser(private var tokens: List[Token]):
       case _ =>
         SyntaxNode.LetBinding(isRec, binder, binderType, binderExpr, None)
 
+  private def ifExpr(): SyntaxNode =
+    if tokens.head.kind != TokenKind.If then
+      return abstraction()
+    matchToken(TokenKind.If)
+    val condition = expr()
+    matchToken(TokenKind.Then)
+    val thenClause = expr()
+    matchToken(TokenKind.Else)
+    val elseClause = expr()
+    return SyntaxNode.If(condition, thenClause, elseClause)
 
   private def abstraction(): SyntaxNode =
+    if tokens.head.kind != TokenKind.Lambda then
+      return sequence()
     matchToken(TokenKind.Lambda)
     val binder = matchToken(TokenKind.Id).asInstanceOf[Token.Id].name
     val binderType = if tokens.head.kind == TokenKind.Colon then
@@ -330,7 +386,7 @@ class Parser(private var tokens: List[Token]):
       Some(typeDecl())
     else
       None
-    matchToken(TokenKind.Dot)
+    matchToken(TokenKind.DoubleArrow)
     val body = expr()
     SyntaxNode.Abstraction(binder, binderType, body)
 
@@ -469,8 +525,16 @@ class Parser(private var tokens: List[Token]):
         SyntaxNode.Bool(matchToken(tokens.head.kind).kind == TokenKind.True)
       case TokenKind.Not =>
         matchToken(TokenKind.Not)
-        SyntaxNode.Negation(factor())
-      case _ => throw IllegalStateException("Expected identifier or left paren but got " + tokens.head.kind)
+        SyntaxNode.Negation(expr())
+      case TokenKind.Sharp =>
+        matchToken(TokenKind.Sharp)
+        val name = matchToken(TokenKind.Id).asInstanceOf[Token.Id].name
+        matchToken(TokenKind.LeftParen)
+        val arg = expr()
+        matchToken(TokenKind.RightParen)
+        SyntaxNode.Macro(name, arg)
+      case _ =>
+        throw IllegalStateException("Expected identifier or left paren but got " + tokens.head.kind)
 
   private def tuple(): SyntaxNode.Tuple =
     matchToken(TokenKind.LeftParen)
@@ -502,7 +566,7 @@ class Parser(private var tokens: List[Token]):
       case d@(TokenKind.Pi | TokenKind.Sigma) =>
         matchToken(d)
         val (binderName, binderType) = matchTypeAssertion()
-        matchToken(TokenKind.RightArrow)
+        matchToken(TokenKind.Dot)
         val body = typeDecl()
         if d == TokenKind.Pi then
           TypeDecl.PiType(binderName, binderType, body)
@@ -528,7 +592,7 @@ class Parser(private var tokens: List[Token]):
     return TypeDecl.DependentOperator(binderName, binderType, body)
 
   private def dependentInstantiation(): TypeDecl =
-    val first = productType()
+    val first = functionType()
     if tokens.head.kind != TokenKind.LeftBracket then
       return first
     val args = dependentInstantiationArguments()
@@ -541,6 +605,19 @@ class Parser(private var tokens: List[Token]):
       matchToken(TokenKind.RightBracket)
       first :: dependentInstantiationArguments()
     else Nil
+
+  private def functionType(): TypeDecl =
+    val first = productType()
+    return functionTypeRest(first)
+
+  private def functionTypeRest(first: TypeDecl): TypeDecl =
+    return tokens.head.kind match
+      case TokenKind.RightArrow =>
+        matchToken(TokenKind.RightArrow)
+        val second = functionType()
+        functionTypeRest(TypeDecl.PiType("_", first, second))
+      case _ => first
+
 
   private def productType(): TypeDecl =
     val first = typeFactor()

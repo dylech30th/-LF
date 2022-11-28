@@ -31,9 +31,10 @@ given Show[SyntaxNode] with
         classOf[Conjunction] ::
         classOf[Disjunction] ::
         classOf[Equal] ::
+        classOf[Application] ::
         classOf[NotEqual] :: Nil) -> Associativity.Left,
       (classOf[Fixpoint] :: Nil) -> Associativity.None,
-      (classOf[Application] :: Nil) -> Associativity.Right
+      (classOf[Sequence] :: Nil) -> Associativity.Right
     )
 
   private val precedenceTable: Map[List[Class[_ <: SyntaxNode]], Int] =
@@ -115,6 +116,9 @@ given Show[SyntaxNode] with
       case Abstraction(binder, binderType, body) => s"(λ$binder${binderType.map(ty => s": ${pprint(ty)}").getOrElse("")}. ${show(body)})"
       case TypeAlias(name, alias) => s"type $name = ${pprint(alias)}"
       case Fixpoint(_) => throw error("Fixpoint is language-intrinsic and should not be printed")
+      case TypeDefine(binder, kind) => s"define $binder :: ${pprint(kind)}"
+      case TermDefine(binder, ty) => s"define $binder: ${pprint(ty)}"
+      case Macro(name, target) => s"#$name(${show(target)})"
 
     val hasLowerPrecedence = 0 until precedenceOf(t.getClass) contains parentPrecedence
     val atLeastPrecedence = 0 to precedenceOf(t.getClass) contains parentPrecedence
@@ -131,10 +135,31 @@ given Show[TypeDecl] with
     case BoolType => "bool"
     case NatType => "nat"
     case Var(name) => name
-    case PiType(binder, binderType, body) => s"Π$binder: ${show(binderType)} -> ${pprint(body)}"
-    case SigmaType(binder, binderType, body) => s"Σ$binder: ${show(binderType)} -> ${pprint(body)}"
-    case DependentOperator(binder, binderType, body) => s"λ$binder: ${show(binderType)} -> ${show(body)}"
-    case ProductType(products) => s"(${products.map(show).mkString(", ")})"
-    case DependentInstantiation(f, a) => s"${show(f)} [${pprint(a)}]"
+    case PiType(binder, binderType, body) =>
+      if fvDep(body) contains binder then
+        s"Π$binder: ${show(binderType)}. ${pprint(body)}"
+      else
+        body match
+          case NotSingletonType(_) => s"${show(binderType)} -> (${pprint(body)})"
+          case _ => s"${show(binderType)} -> ${pprint(body)}"
+    case SigmaType(binder, binderType, body) =>
+      if fvDep(body) contains binder then
+        s"Σ$binder: ${show(binderType)}. ${pprint(body)}"
+      else
+        body match
+          case NotSingletonType(_) => s"${show(binderType)} * (${pprint(body)})"
+          case _ => s"${show(binderType)} * ${pprint(body)}"
+    case DependentOperator(binder, binderType, body) =>
+      body match
+        case NotSingletonType(_) => s"λ$binder: ${show(binderType)}. (${pprint(body)})"
+        case _ => s"λ$binder: ${show(binderType)}. ${pprint(body)}"
+    case ProductType(products) => s"(${products.map(show).mkString(" * ")})"
+    case DependentInstantiation(f, a) =>
+      s"${show(f)} [${pprint(a)}]"
+
+given Show[Kind] with
+  override def show(t: Kind): String = t match
+    case Kind.Type => "*"
+    case Kind.Pi(_, binderType, bodyKind) => s"${pprint(binderType)} -> ${show(bodyKind)}"
 
 def pprint[T](t: T)(using s: Show[T]): String = s.show(t)
