@@ -1,0 +1,132 @@
+[debug] > Exec(early(addDefaultCommands), None, None)
+[debug] > Exec(addDefaultCommands, None, None)
+[debug] > Exec(early(initialize), None, None)
+[debug] > Exec(initialize, None, None)
+[debug] > Exec(boot, None, None)
+[debug] > Exec(writeSbtVersion, None, None)
+[debug] > Exec(reload, None, None)
+[debug] > Exec(sbtStashOnFailure, None, None)
+[debug] > Exec(onFailure loadFailed, None, None)
+[debug] > Exec(loadp, None, None)
+[info] welcome to sbt 1.8.0 (Eclipse Adoptium Java 17.0.1)
+[debug]       Load.loadUnit: plugins took 165.2528ms
+[debug]       Load.loadUnit: defsScala took 0.1506ms
+[debug] [Loading] Scanning directory C:\Users\26532\.sbt\1.0\plugins
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Users\26532\.sbt\1.0\plugins, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 10.4977 ms
+[debug]           Load.resolveProject(global-plugins) took 44.042ms
+[debug]         Load.loadTransitive: finalizeProject(Project(id global-plugins, base: C:\Users\26532\.sbt\1.0\plugins, plugins: List(<none>))) took 86.319ms
+[debug] [Loading] Done in C:\Users\26532\.sbt\1.0\plugins, returning: (global-plugins)
+[debug]       Load.loadUnit: loadedProjectsRaw took 119.8246ms
+[debug]       Load.loadUnit: cleanEvalClasses took 0.1232ms
+[debug]     Load.loadUnit(file:/C:/Users/26532/.sbt/1.0/plugins/, ...) took 300.3705ms
+[debug]   Load.apply: load took 462.3577ms
+[debug]   Load.apply: resolveProjects took 5.0904ms
+[debug]   Load.apply: finalTransforms took 39.421ms
+[debug]   Load.apply: config.delegates took 8.5999ms
+[debug]   Load.apply: Def.make(settings)... took 458.0505ms
+[debug]   Load.apply: structureIndex took 104.5532ms
+[debug]   Load.apply: mkStreams took 3.9944ms
+[info] loading global plugins from C:\Users\26532\.sbt\1.0\plugins
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug] Load.defaultLoad until apply took 3257.9503ms
+[debug]           Load.loadUnit: plugins took 20.6706ms
+[debug]           Load.loadUnit: defsScala took 0.0019ms
+[debug] [Loading] Scanning directory C:\Projects\scala\coc\project
+[debug]             Load.loadUnit: mkEval took 7.4884ms
+[debug] [Loading] Found non-root projects 
+[debug] [Loading] Done in C:\Projects\scala\coc\project, returning: ()
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 0.9462 ms
+[info] loading settings for project coc-build from plugins.sbt ...
+[debug]               Load.resolveProject(coc-build) took 1.3493ms
+[debug]             Load.loadTransitive: finalizeProject(Project(id coc-build, base: C:\Projects\scala\coc\project, plugins: List(<none>))) took 2.5885ms
+[debug] [Loading] Done in C:\Projects\scala\coc\project, returning: (coc-build)
+[debug]           Load.loadUnit: loadedProjectsRaw took 1138.6234ms
+[debug]           Load.loadUnit: cleanEvalClasses took 2.4308ms
+[debug]         Load.loadUnit(file:/C:/Projects/scala/coc/project/, ...) took 1162.1277ms
+[debug]       Load.apply: load took 1163.0153ms
+[debug]       Load.apply: resolveProjects took 0.0824ms
+[debug]       Load.apply: finalTransforms took 6.9623ms
+[debug]       Load.apply: config.delegates took 0.3569ms
+[debug]       Load.apply: Def.make(settings)... took 34.0143ms
+[debug]       Load.apply: structureIndex took 13.1415ms
+[debug]       Load.apply: mkStreams took 0.0015ms
+[info] loading project definition from C:\Projects\scala\coc\project
+[debug] Running task... Cancel: Signal, check cycles: false, forcegc: true
+[debug]     Load.loadUnit: plugins took 1435.554ms
+[debug]     Load.loadUnit: defsScala took 0.0019ms
+[debug] [Loading] Scanning directory C:\Projects\scala\coc
+[debug]       Load.loadUnit: mkEval took 0.2003ms
+[debug] [Loading] Found root project root w/ remaining 
+[debug] deducing auto plugins based on known facts Set(Atom(sbt.plugins.CorePlugin)) and clauses Clauses(Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.ScriptedPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.SbtPlugin),Set(Atom(sbt.ScriptedPlugin)))
+[debug] Clause(Atom(sbt.plugins.SemanticdbPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JUnitXmlReportPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.MiniDependencyTreePlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbtide.ConfigPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.IvyPlugin)))
+[debug] Clause(Atom(sbt.plugins.IvyPlugin),Set(Atom(sbt.plugins.JvmPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.SemanticdbPlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.JUnitXmlReportPlugin)))
+[debug] Clause(Atom(sbt.plugins.CorePlugin),Set(Atom(sbt.plugins.Giter8TemplatePlugin)))
+[debug] Clause(Atom(sbt.plugins.JvmPlugin),Set(Atom(sbt.plugins.MiniDependencyTreePlugin))))
+[debug]   :: deduced result: Matched(sbt.plugins.CorePlugin,sbt.plugins.Giter8TemplatePlugin,sbt.plugins.IvyPlugin,sbt.plugins.JvmPlugin,sbt.plugins.MiniDependencyTreePlugin,sbt.plugins.JUnitXmlReportPlugin,sbt.plugins.SemanticdbPlugin)
+[debug] Plugins.deducer#function took 0.8483 ms
+[info] loading settings for project root from build.sbt ...
+[debug]         Load.resolveProject(root) took 0.7402ms
+[debug]       Load.loadTransitive: finalizeProject(Project(id root, base: C:\Projects\scala\coc, plugins: List(<none>))) took 2.861ms
+[debug] [Loading] Done in C:\Projects\scala\coc, returning: (root)
+[debug]     Load.loadUnit: loadedProjectsRaw took 737.6555ms
+[debug]     Load.loadUnit: cleanEvalClasses took 2.3969ms
+[debug]   Load.loadUnit(file:/C:/Projects/scala/coc/, ...) took 2176.1389ms
+[debug] Load.apply: load took 2177.491ms
+[debug] Load.apply: resolveProjects took 0.0612ms
+[debug] Load.apply: finalTransforms took 3.6251ms
+[debug] Load.apply: config.delegates took 0.1449ms
+[debug] Load.apply: Def.make(settings)... took 36.4033ms
+[debug] Load.apply: structureIndex took 11.3298ms
+[debug] Load.apply: mkStreams took 0.0019ms
+[info] set current project to coc (in build file:/C:/Projects/scala/coc/)
+[warn] there's a key that's not used by any other settings/tasks:
+[warn]  
+[warn] * root / idePackagePrefix
+[warn]   +- C:\Projects\scala\coc\build.sbt:8
+[warn]  
+[warn] note: a setting might still be used by a command; to exclude a key from this `lintUnused` check
+[warn] either append it to `Global / excludeLintKeys` or call .withRank(KeyRanks.Invisible) on the key
+[debug] > Exec(sbtPopOnFailure, None, None)
+[debug] > Exec(resumeFromFailure, None, None)
+[debug] > Exec(notifyUsersAboutShell, None, None)
+[debug] > Exec(iflast shell, None, None)
+[debug] > Exec(shell, None, None)
+[info] sbt server started at local:sbt-server-e9288317dd45d5dbedb6
+[debug] Writing bsp connection file
+[info] started sbt server
